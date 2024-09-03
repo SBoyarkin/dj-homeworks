@@ -15,9 +15,10 @@ Including another URLconf
 """
 
 from django.urls import path, include
-
+from .views import recipe
 import calculator.views
 
 urlpatterns = [
-    path('recipe/', include('calculator.urls'))
+    path('<rp>/', recipe)
+
     ]

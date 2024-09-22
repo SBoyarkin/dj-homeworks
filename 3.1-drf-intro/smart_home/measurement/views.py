@@ -51,7 +51,10 @@ class UpdateSensorRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
     def get(self, request, pk):
         print(request, pk)
-        if Sensor.objects.filter(id=pk):
-            return Response({'s':'200'})
+        obj = Sensor.objects.get(id=pk)
+        serializer = self.serializer_class(obj)
+        print(serializer)
+        if obj:
+            return Response(serializer.data)
         else:
             raise NotFound

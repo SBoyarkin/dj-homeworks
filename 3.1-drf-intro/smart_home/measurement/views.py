@@ -48,13 +48,3 @@ class InfoListAPIView(ListAPIView):
 class UpdateSensorRetrieveUpdateAPIView(RetrieveUpdateAPIView):
     queryset = Sensor.objects.all()
     serializer_class = SensorSerializer
-
-    def get(self, request, pk):
-        print(request, pk)
-        obj = Sensor.objects.get(id=pk)
-        serializer = self.serializer_class(obj)
-        print(serializer)
-        if obj:
-            return Response(serializer.data)
-        else:
-            raise NotFound

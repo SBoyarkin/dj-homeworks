@@ -6,4 +6,5 @@ router = DefaultRouter()
 router.register('products', ProductViewSet)
 router.register('stocks', StockViewSet)
 
+
 urlpatterns = router.urls

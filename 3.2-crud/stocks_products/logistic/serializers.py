@@ -1,3 +1,5 @@
+from pprint import pprint
+
 from rest_framework import serializers
 
 from logistic.models import Product, Stock, StockProduct
@@ -25,13 +27,9 @@ class StockSerializer(serializers.ModelSerializer):
     # настройте сериализатор для склада
 
     def create(self, validated_data):
-        # достаем связанные данные для других таблиц
         positions = validated_data.pop('positions')
-        stocks = validated_data.get('address')
-        print(stocks)
-        # создаем склад по его параметрам
+
         stock = super().create(validated_data)
-        sid = Stock.objects.get(address=stocks)
 
         for position in positions:
             obj = StockProduct()
@@ -39,25 +37,25 @@ class StockSerializer(serializers.ModelSerializer):
             obj.product = position.get('product')
             obj.price = position.get('price')
             obj.quantity = position.get('quantity')
-
             obj.save()
-
-
-        # здесь вам надо заполнить связанные таблицы
-        # в нашем случае: таблицу StockProduct
-        # с помощью списка positions
-
         return stock
 
     def update(self, instance, validated_data):
-        # достаем связанные данные для других таблиц
-        positions = validated_data.pop('positions')
-
-        # обновляем склад по его параметрам
+        # извлекаем связанные данные для других таблиц
+        positions = validated_data.pop('positions', None)
         stock = super().update(instance, validated_data)
 
-        # здесь вам надо обновить связанные таблицы
-        # в нашем случае: таблицу StockProduct
-        # с помощью списка positions
+        if positions is not None:
+            existing_products = {prod.product.id: prod for prod in StockProduct.objects.filter(stock=instance)}
+            print(existing_products)
+            for position in positions:
+                product_id = position.get('product').id
+                print(product_id)
+                if product_id in existing_products:
+                    stock_product = existing_products[product_id]
+                    print(stock_product)
+                    stock_product.price = position.get('price', stock_product.price)
+                    stock_product.quantity = position.get('quantity', stock_product.quantity)
+                    stock_product.save()
 
         return stock
